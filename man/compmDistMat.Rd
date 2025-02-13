@@ -57,28 +57,28 @@ Different distance measures are available and can be set by \code{method}.
 \examples{
 ## 2-dimensional functions
 
-xdim1 = replicate(4, rnorm(100, 0, 3))
-xdim2 = replicate(4, rnorm(100, 3, 1))
+xdim1 <- replicate(4, rnorm(100, 0, 3))
+xdim2 <- replicate(4, rnorm(100, 3, 1))
 
-ydim1 = replicate(2, rnorm(100, 0, 3))
-ydim2 = replicate(2, rnorm(100, 3, 1))
+ydim1 <- replicate(2, rnorm(100, 0, 3))
+ydim2 <- replicate(2, rnorm(100, 3, 1))
 
-x = list(xdim1, xdim2)
-y = list(ydim1, ydim2)
-compmDistMat(x=x, y=y, method="Euclidean", parallel = FALSE, cl = NULL)
+x <- list(xdim1, xdim2)
+y <- list(ydim1, ydim2)
+compmDistMat(x = x, y = y, method = "Euclidean", parallel = FALSE, cl = NULL)
 
 ## 3-dimensional functions
-xdim1 = replicate(4, rnorm(100, 0, 3))
-xdim2 = replicate(4, rnorm(100, 3, 1))
-xdim3 = replicate(4, rnorm(100, 5, 1))
+xdim1 <- replicate(4, rnorm(100, 0, 3))
+xdim2 <- replicate(4, rnorm(100, 3, 1))
+xdim3 <- replicate(4, rnorm(100, 5, 1))
 
-ydim1 = replicate(2, rnorm(100, 0, 3))
-ydim2 = replicate(2, rnorm(100, 3, 1))
-ydim3 = replicate(2, rnorm(100, 5, 1))
+ydim1 <- replicate(2, rnorm(100, 0, 3))
+ydim2 <- replicate(2, rnorm(100, 3, 1))
+ydim3 <- replicate(2, rnorm(100, 5, 1))
 
-x = list(xdim1, xdim2, xdim3)
-y = list(ydim1, ydim2, ydim3)
-compmDistMat(x=x, y=y, method="Euclidean", parallel = FALSE, cl = NULL)
+x <- list(xdim1, xdim2, xdim3)
+y <- list(ydim1, ydim2, ydim3)
+compmDistMat(x = x, y = y, method = "Euclidean", parallel = FALSE, cl = NULL)
 
 compmDistMat: computes the distance (given "method") among n-dimensional vector(s)
 

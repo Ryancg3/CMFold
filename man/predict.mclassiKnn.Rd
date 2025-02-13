@@ -19,26 +19,26 @@ The present function yields predictions for new data with an mclassiKnn object .
 \examples{
 
 ## 3-dimensional functions
-#classes
-classes = as.factor(c("Cat","Dog","Dog","Cat"))
+# classes
+classes <- as.factor(c("Cat", "Dog", "Dog", "Cat"))
 
-#training_data
-x = replicate(4, rnorm(100, 0, 3))
-y = replicate(4, rnorm(100, 3, 1))
-z = replicate(4, rpois(100, 2))
-training_data = list(x, y, z)
+# training_data
+x <- replicate(4, rnorm(100, 0, 3))
+y <- replicate(4, rnorm(100, 3, 1))
+z <- replicate(4, rpois(100, 2))
+training_data <- list(x, y, z)
 
-#Creating object for mknn prediction
-object = mclassiKnn(classes=classes, fdata = training_data, knn=3, nderiv = 0, cl = NULL)
+# Creating object for mknn prediction
+object <- mclassiKnn(classes = classes, fdata = training_data, knn = 3, nderiv = 0, cl = NULL)
 
-#test_data
-x = replicate(2, rnorm(100, 0, 2.9))
-y = replicate(2, rnorm(100, 3, 1.5))
-z = replicate(2, rpois(100, 3))
+# test_data
+x <- replicate(2, rnorm(100, 0, 2.9))
+y <- replicate(2, rnorm(100, 3, 1.5))
+z <- replicate(2, rpois(100, 3))
 
-test_data = list(x, y, z)
+test_data <- list(x, y, z)
 
-#Predict
+# Predict
 
-predict.mclassiKnn(object = object, newdata= test_data, predict.type="response")
+predict.mclassiKnn(object = object, newdata = test_data, predict.type = "response")
 }

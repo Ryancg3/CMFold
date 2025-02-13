@@ -59,7 +59,7 @@ predictLearner.classif.mclassiKnn <- function(.learner, .model, .newdata, ...) {
     object = .model$learner.model,
     newdata = .newdata,
     msubset = msubset,
-    predict.type = .model$learner$par.vals$predict.type
+    predict.type = .model$learner$predict.type
   )
 }
 

@@ -23,28 +23,28 @@
 #' @examples
 #' ## 2-dimensional functions
 #'
-#' xdim1 = replicate(4, rnorm(100, 0, 3))
-#' xdim2 = replicate(4, rnorm(100, 3, 1))
+#' xdim1 <- replicate(4, rnorm(100, 0, 3))
+#' xdim2 <- replicate(4, rnorm(100, 3, 1))
 #'
-#' ydim1 = replicate(2, rnorm(100, 0, 3))
-#' ydim2 = replicate(2, rnorm(100, 3, 1))
+#' ydim1 <- replicate(2, rnorm(100, 0, 3))
+#' ydim2 <- replicate(2, rnorm(100, 3, 1))
 #'
-#' x = list(xdim1, xdim2)
-#' y = list(ydim1, ydim2)
-#' compmDistMat(x=x, y=y, method="Euclidean", parallel = FALSE, cl = NULL)
+#' x <- list(xdim1, xdim2)
+#' y <- list(ydim1, ydim2)
+#' compmDistMat(x = x, y = y, method = "Euclidean", parallel = FALSE, cl = NULL)
 #'
 #' ## 3-dimensional functions
-#' xdim1 = replicate(4, rnorm(100, 0, 3))
-#' xdim2 = replicate(4, rnorm(100, 3, 1))
-#' xdim3 = replicate(4, rnorm(100, 5, 1))
+#' xdim1 <- replicate(4, rnorm(100, 0, 3))
+#' xdim2 <- replicate(4, rnorm(100, 3, 1))
+#' xdim3 <- replicate(4, rnorm(100, 5, 1))
 #'
-#' ydim1 = replicate(2, rnorm(100, 0, 3))
-#' ydim2 = replicate(2, rnorm(100, 3, 1))
-#' ydim3 = replicate(2, rnorm(100, 5, 1))
+#' ydim1 <- replicate(2, rnorm(100, 0, 3))
+#' ydim2 <- replicate(2, rnorm(100, 3, 1))
+#' ydim3 <- replicate(2, rnorm(100, 5, 1))
 #'
-#' x = list(xdim1, xdim2, xdim3)
-#' y = list(ydim1, ydim2, ydim3)
-#' compmDistMat(x=x, y=y, method="Euclidean", parallel = FALSE, cl = NULL)
+#' x <- list(xdim1, xdim2, xdim3)
+#' y <- list(ydim1, ydim2, ydim3)
+#' compmDistMat(x = x, y = y, method = "Euclidean", parallel = FALSE, cl = NULL)
 #'
 
 #' compmDistMat: computes the distance (given "method") among n-dimensional vector(s)
@@ -57,122 +57,137 @@
 #' diag is a logical value indicating whether the diagonal of the distance matrix should be printed (similar to stat:dist)
 #' upper is a logical value indicating whether the upper triangle of the matrix should be printed (similar to stat:dist)
 #' @export
-compmDistMat=function( x,
-                       y=NULL,
-                       method="Euclidean",
-                       measure=NULL,
-                       timestamps=NULL,
-                       reset_timestamps=FALSE,
-                       resample=TRUE,
-                       flip_threshold=0,
-                       hover_threshold=2000,
-                       baseline=FALSE,
-                       weight=NULL, # add condition for checking and so
-                       parallel=FALSE,
-                       cl=NULL,
-                       diag=TRUE,
-                       upper=TRUE,...)
-{
+compmDistMat <- function(x,
+                         y = NULL,
+                         method = "Euclidean",
+                         measure = NULL,
+                         timestamps = NULL,
+                         reset_timestamps = FALSE,
+                         resample = TRUE,
+                         flip_threshold = 0,
+                         hover_threshold = 2000,
+                         baseline = FALSE,
+                         weight = NULL, # add condition for checking and so
+                         parallel = FALSE,
+                         cl = NULL,
+                         diag = TRUE,
+                         upper = TRUE, ...) {
   # Block 1: overall checks
   checkmate::assertList(x)
-  print("hey")
-  print(x)
-  data=x
-  if(!is.null(timestamps)){
-    checkmate::assertList(timestamps)}
+  data <- x
+  if (!is.null(timestamps)) {
+    checkmate::assertList(timestamps)
+  }
   checkmate::assertLogical(baseline)
-  if(!isTRUE(baseline)){
-    print(data)
-    d=length(data)
+  if (!isTRUE(baseline)) {
+    d <- length(data)
   } else {
-    print(data)
-    d=length(data[[1]])}
+    d <- length(data[[1]])
+  }
   checkmate::assertLogical(diag)
   checkmate::assertLogical(upper)
   checkmate::assertLogical(reset_timestamps)
   checkmate::assertLogical(resample)
-  checkmate::assertNumeric(flip_threshold ,lower=0,len=1L)
-  checkmate::assertNumeric(hover_threshold,lower=0,len=1L)
+  checkmate::assertNumeric(flip_threshold, lower = 0, len = 1L)
+  checkmate::assertNumeric(hover_threshold, lower = 0, len = 1L)
   checkmate::assertLogical(parallel)
-  if(!is.null(cl)){
-    if(!isTRUE(parallel)){
-      stop("Error: parallel should be TRUE")}
-    checkmate::assertNumeric(cl,lower=1)}
+  if (!is.null(cl)) {
+    if (!isTRUE(parallel)) {
+      stop("Error: parallel should be TRUE")
+    }
+    checkmate::assertNumeric(cl, lower = 1)
+  }
 
   # Block 2: list of objects (x: if there is not testing set, x and y if there is a testing set)
-  if(!is.null(y)){
+  if (!is.null(y)) {
     checkmate::assertList(y)
-    if(!(length(x)==length(y))){                            # check if the components have the same number of individuals and time-points
-      stop("Error: x and y should have the same length")}
-    allist=list(x,y)
-    if(isTRUE(baseline)){
-     data=plyr::alply(cbind(1:d),1,function(i) plyr::alply(cbind(1:length(allist[[1]])),1,function(j) do.call(cbind,do.call(cbind,do.call(cbind,allist)[j,])[i,])))
+    if (!(length(x) == length(y))) { # check if the components have the same number of individuals and time-points
+      stop("Error: x and y should have the same length")
+    }
+    allist <- list(x, y)
+    if (isTRUE(baseline)) {
+      data <- plyr::alply(cbind(1:d), 1, function(i) plyr::alply(cbind(1:length(allist[[1]])), 1, function(j) do.call(cbind, do.call(cbind, do.call(cbind, allist)[j, ])[i, ])))
     } else {
-      data=plyr::alply(cbind(1:d),1,function(i) do.call(cbind,do.call(cbind,allist)[i,]))}}
+      data <- plyr::alply(cbind(1:d), 1, function(i) do.call(cbind, do.call(cbind, allist)[i, ]))
+    }
+  }
 
   # Block 3: compute the distance depending of method or measure
-  if(!is.null(method)){
+  if (!is.null(method)) {
     checkmate::assertNull(measure)
-    #source(paste(paste(paste("m","metric",sep=""),"Choices",sep=""),"R",sep="."))
-    checkmate::assertChoice(method,choices=mmetricChoices())
-    if(method %in% unlist(sapply(proxy::pr_DB$get_entries()[c("Euclidean","Manhattan","Minkowski")],function(x)x$names))){
-      method=names(sapply(sapply(proxy::pr_DB$get_entries(),function(x) x$names),function(x) sum(x==method))[sapply(sapply(proxy::pr_DB$get_entries(),function(x) x$names),function(x) sum(x==method))==1])}
-    #source(paste(paste("m",method,sep=""),"R",sep="."))
-    if(isTRUE(baseline)){
-      mdist=plyr::alply(cbind(1:length(allist[[1]])),1,function(i) do.call(paste("m",method,sep=""),list(do.call(cbind,data)[i,],parallel=parallel,cl=cl)))
-      if(is.null(weight)){
-        weight=rep(1/length(allist),length(allist))}
-        mdist=plyr::alply(cbind(1:length(weight)),1,function(j) mdist[[j]]*weight[j])
-        mdist=Reduce("+",mdist)
-     } else {
-        mdist=do.call(paste("m",method,sep=""),list(data,parallel=parallel,cl=cl))}
+    # source(paste(paste(paste("m","metric",sep=""),"Choices",sep=""),"R",sep="."))
+    checkmate::assertChoice(method, choices = mmetricChoices())
+    if (method %in% unlist(sapply(proxy::pr_DB$get_entries()[c("Euclidean", "Manhattan", "Minkowski")], function(x) x$names))) {
+      method <- names(sapply(sapply(proxy::pr_DB$get_entries(), function(x) x$names), function(x) sum(x == method))[sapply(sapply(proxy::pr_DB$get_entries(), function(x) x$names), function(x) sum(x == method)) == 1])
+    }
+    # source(paste(paste("m",method,sep=""),"R",sep="."))
+    if (isTRUE(baseline)) {
+      mdist <- plyr::alply(cbind(1:length(allist[[1]])), 1, function(i) do.call(paste("m", method, sep = ""), list(do.call(cbind, data)[i, ], parallel = parallel, cl = cl)))
+      if (is.null(weight)) {
+        weight <- rep(1 / length(allist), length(allist))
+      }
+      mdist <- plyr::alply(cbind(1:length(weight)), 1, function(j) mdist[[j]] * weight[j])
+      mdist <- Reduce("+", mdist)
+    } else {
+      mdist <- do.call(paste("m", method, sep = ""), list(data, parallel = parallel, cl = cl))
+    }
   } else {
-      checkmate::assertNull(method)
-      #source(paste(paste(paste("m","measures",sep=""),"Choices",sep=""),"R",sep="."))
-      checkmate::assertChoice(measure,choices=mmeasuresChoices())
-      #source(paste(paste("m","measures",sep=""),"R",sep="."))
-      if(isTRUE(baseline)){
-        mtdata=plyr::alply(cbind(1:length(allist[[1]])),1,function(i) mmeasures(mtdata=data[[i]],timestamps=timestamps[[i]],reset_timestamps=reset_timestamps,resample=resample,flip_threshold=flip_threshold,hover_threshold=hover_threshold))
-        if(measure=="flips"){
-          mtdata=lapply(mtdata,function(x) list(x=x[,"xpos_flips"],y=x[,"ypos_flips"]))
-        } else {
-            mtdata=lapply(mtdata,function(x) list(x=x[,measure]))
-        }
-        #source(paste(paste(paste("m","dist",sep=""),"Measures",sep=""),"R",sep="."))
-        mdist=lapply(mtdata,function(i) mdistMeasures(i,measure))
-        if(is.null(weight)){
-          weight=rep(1/length(allist),length(allist))}
-        mdist=plyr::alply(cbind(1:length(weight)),1,function(j) mdist[[j]]*weight[j])
-        mdist=Reduce("+",mdist)
+    checkmate::assertNull(method)
+    # source(paste(paste(paste("m","measures",sep=""),"Choices",sep=""),"R",sep="."))
+    checkmate::assertChoice(measure, choices = mmeasuresChoices())
+    # source(paste(paste("m","measures",sep=""),"R",sep="."))
+    if (isTRUE(baseline)) {
+      mtdata <- plyr::alply(cbind(1:length(allist[[1]])), 1, function(i) mmeasures(mtdata = data[[i]], timestamps = timestamps[[i]], reset_timestamps = reset_timestamps, resample = resample, flip_threshold = flip_threshold, hover_threshold = hover_threshold))
+      if (measure == "flips") {
+        mtdata <- lapply(mtdata, function(x) list(x = x[, "xpos_flips"], y = x[, "ypos_flips"]))
       } else {
-          mtdata=mmeasures(mtdata=data,timestamps=timestamps,reset_timestamps=reset_timestamps,resample=resample,flip_threshold=flip_threshold,hover_threshold=hover_threshold)
-          #source(paste(paste(paste("m","dist",sep=""),"Measures",sep=""),"R",sep="."))
-          if(measure=="flips"){
-            mdist=do.call(mdistMeasures,list(list(xlist=cbind(mtdata[,"xpos_flips"]),ylist=cbind(mtdata[,"ypos_flips"])),measure))
-           }else {
-              mdist=do.call(mdistMeasures,list(list(mtdata[,measure]),measure))}}}
+        mtdata <- lapply(mtdata, function(x) list(x = x[, measure]))
+      }
+      # source(paste(paste(paste("m","dist",sep=""),"Measures",sep=""),"R",sep="."))
+      mdist <- lapply(mtdata, function(i) mdistMeasures(i, measure))
+      if (is.null(weight)) {
+        weight <- rep(1 / length(allist), length(allist))
+      }
+      mdist <- plyr::alply(cbind(1:length(weight)), 1, function(j) mdist[[j]] * weight[j])
+      mdist <- Reduce("+", mdist)
+    } else {
+      mtdata <- mmeasures(mtdata = data, timestamps = timestamps, reset_timestamps = reset_timestamps, resample = resample, flip_threshold = flip_threshold, hover_threshold = hover_threshold)
+      # source(paste(paste(paste("m","dist",sep=""),"Measures",sep=""),"R",sep="."))
+      if (measure == "flips") {
+        mdist <- do.call(mdistMeasures, list(list(xlist = cbind(mtdata[, "xpos_flips"]), ylist = cbind(mtdata[, "ypos_flips"])), measure))
+      } else {
+        mdist <- do.call(mdistMeasures, list(list(mtdata[, measure]), measure))
+      }
+    }
+  }
 
   # Block 4: prepare the output
-  if(upper==TRUE){
-    if(diag==FALSE){
-      diag(mdist)=NA}}
-  if(upper==FALSE){
-    mdist[upper.tri(mdist,diag=!diag)]=NA}
-  rownames(mdist)=paste("x",1:nrow(mdist),sep="-")
-  colnames(mdist)=paste("x",1:nrow(mdist),sep="-")
-  if(!is.null(y)){
-    if(isTRUE(baseline)){
-      mdist=mdist[(ncol(x[[1]][[1]])+1):(ncol(mdist)),1:ncol(x[[1]][[1]])]
-      if(ncol(y[[1]][[1]])!=1){
-        rownames(mdist)=paste("y",1:nrow(mdist),sep="-")}
+  if (upper == TRUE) {
+    if (diag == FALSE) {
+      diag(mdist) <- NA
+    }
+  }
+  if (upper == FALSE) {
+    mdist[upper.tri(mdist, diag = !diag)] <- NA
+  }
+  rownames(mdist) <- paste("x", 1:nrow(mdist), sep = "-")
+  colnames(mdist) <- paste("x", 1:nrow(mdist), sep = "-")
+  if (!is.null(y)) {
+    if (isTRUE(baseline)) {
+      mdist <- mdist[(ncol(x[[1]][[1]]) + 1):(ncol(mdist)), 1:ncol(x[[1]][[1]])]
+      if (ncol(y[[1]][[1]]) != 1) {
+        rownames(mdist) <- paste("y", 1:nrow(mdist), sep = "-")
+      }
     } else {
-      print(ncol(x[[1]]))
-      mdist=mdist[(ncol(x[[1]])+1):(ncol(mdist)),1:ncol(x[[1]])]
-    if(ncol(y[[1]])!=1){
-      rownames(mdist)=paste("y",1:nrow(mdist),sep="-")}}}
+      mdist <- mdist[(ncol(x[[1]]) + 1):(ncol(mdist)), 1:ncol(x[[1]])]
+      if (ncol(y[[1]]) != 1) {
+        rownames(mdist) <- paste("y", 1:nrow(mdist), sep = "-")
+      }
+    }
+  }
 
   return(mdist)
 }
 
 # TO DO(s):
-  # NAs -> distances give error if missing. Not measure (Amanda: check this)
+# NAs -> distances give error if missing. Not measure (Amanda: check this)
