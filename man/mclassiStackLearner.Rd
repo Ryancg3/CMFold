@@ -4,7 +4,7 @@
 \alias{mclassiStackLearner}
 \title{mclassiEnsemble}
 \usage{
-mclassiStackLearner(task, id, knn, kernel = NULL, par.vals, subset)
+mclassiStackLearner(task, id, knn, kernel = NULL, par.vals, subset = NULL)
 }
 \description{
 mclassiEnsemble

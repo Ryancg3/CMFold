@@ -11,7 +11,7 @@ mclassiStackLearner <- function(task,
                                 knn,
                                 kernel = NULL,
                                 par.vals,
-                                subset) {
+                                subset = NULL) {
   if (is.null(task)) {
     stop("Error: task is NULL")
   }
@@ -20,20 +20,34 @@ mclassiStackLearner <- function(task,
   }
   learner <- list()
   for (j in 1:length(id)) {
-    learner[[j]] <- makeLearner(cl = cl, id = id[j], par.vals = list(metric = par.vals[[j]]$metric, mdist = par.vals[[j]]$mdist[((1:task$task.desc$size) %in% subset), ((1:task$task.desc$size) %in% subset)], knn = knn[j], predict.type = par.vals[[j]]$predict.type))
+    if (is.null(subset)) {
+      learner[[j]] <- makeLearner(cl = cl, id = id[j], par.vals = list(metric = par.vals[[j]]$metric, mdist = par.vals[[j]]$mdist , knn = knn[j], predict.type = par.vals[[j]]$predict.type))
+    }
+    else {
+      learner[[j]] <- makeLearner(cl = cl, id = id[j], par.vals = list(metric = par.vals[[j]]$metric, mdist = par.vals[[j]]$mdist[((1:task$task.desc$size) %in% subset), ((1:task$task.desc$size) %in% subset)], knn = knn[j], predict.type = par.vals[[j]]$predict.type))
+    }
   }
   class(learner) <- c("StackLearner")
   learner
-}
+  }
 
 mclassiStackTrain <- function(learner,
                               task,
-                              subset) {
+                              subset,
+                              outer = FALSE) {
   model <- list()
-  subtaskTrain <- subsetTask(task, subset = c(1:task$task.desc$size)[(c(1:task$task.desc$size) %in% subset)])
-  for (j in 1:length(id)) {
-    model[[j]] <- train(learner = learner[[j]], task = subtaskTrain)
+  if (outer == TRUE) { #is this needed, i think both variants are the same. 
+    for (j in 1:length(id)) {
+      model[[j]] <- train(learner = learner[[j]], task = task, subset=subset)
   }
+  }
+  else {
+    subtaskTrain <- subsetTask(task, subset = c(1:task$task.desc$size)[(c(1:task$task.desc$size) %in% subset)])
+    for (j in 1:length(id)) {
+      model[[j]] <- train(learner = learner[[j]], task = subtaskTrain)
+  }
+  }
+
   class(model) <- c("StackTrain")
   return(model)
 }
@@ -63,7 +77,7 @@ mclassiStack <- function(model, pred, super.learner = "randomForest", par.super.
     stop("Error: model object should be of class StackTest")
   }
   checkmate::assertChoice(super.learner, choices = c("randomForest", "boosting", "nnet"))
-  leveloneData <- cbind(pred[[2]], sapply(pred[[1]], function(x) apply(x, 1, function(y) y[which.max(y)])))
+  leveloneData <- cbind(pred[[2]], sapply(pred[[1]], function(x) as.numeric(as.character(x))))
   colnames(leveloneData)[1] <- "response"
   colnames(leveloneData)[2:ncol(leveloneData)] <- paste("exp", 2:ncol(leveloneData) - 1, sep = "")
   if (super.learner == "randomForest") {
